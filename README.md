@@ -7,5 +7,5 @@ Die Logik der Getränkeauswahl und -konfiguration erfolgt in einer separaten Dem
 ## Technische Schwerpunkte:
 - Entwicklung eines OO-basierten, skalierbaren CC mit PySide
 - Dynamische, zustandsabhängige Visualisierung der Tasse (z. B. Milchanteil, Getränkefarbe, Füllstand)
-- Berücksichtigung responsiver Layoutanpassung bei Fenstergrößenänderung
+- Berücksichtigung responsiver Layoutanpassung bei Fenstergrößenänderung und Vollbild
 - Fokus liegt auf Wiederverwendbarkeit, Kapselung und grafischer Darstellung im CC
