@@ -1,11 +1,11 @@
 # main.py
 
+from cup_indicator import CupIndicator
 import sys
-
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton
 )
-
+from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
 
 class MainWindow(QMainWindow):
@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
 
         # Auswahl Getränke Dropdown Menü
         self.drink_selector = QComboBox()
-        self.drink_selector.addItems(["Kaffee", "Tee"])
+        self.drink_selector.addItems(["Kaffee", "Tee", "Schnaps"])
         Layout.addWidget(QLabel("Getränk auswählen:"))
         Layout.addWidget(self.drink_selector)
         
@@ -34,6 +34,12 @@ class MainWindow(QMainWindow):
         self.submit_button.clicked.connect(self.print_input)
         Layout.addWidget(self.submit_button)
 
+        # Custom Control: CupIndicator
+        self.cup = CupIndicator()
+        Layout.addWidget(QLabel("Visualisierung:"))
+        Layout.addWidget(self.cup)
+
+
         # Layout erstellen
         MainWidget.setLayout(Layout)
         self.setCentralWidget(MainWidget)
@@ -42,6 +48,22 @@ class MainWindow(QMainWindow):
         drink = self.drink_selector.currentText()
         amount = self.amount_input.text()
         print(f"Auswahl: {drink}, Füllmenge: {amount} ml")
+        
+        # Simpler Test: z. B. 250ml = 50% Füllstand
+        try:
+            ml = int(amount)
+            fill = min(1.0, ml / 500)
+        except ValueError:
+            fill = 0.0
+
+        # Farbe abhängig vom Getränk
+        #if drink == "Kaffee":
+        #    color = QColor("#6f4e37")
+        #else:
+        #    color = QColor("#c68e17")  # z. B. Tee-Gelb
+
+        self.cup.set_color(drink)
+        self.cup.set_fill_percent(fill)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
