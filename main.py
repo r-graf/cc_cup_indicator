@@ -56,12 +56,6 @@ class MainWindow(QMainWindow):
         except ValueError:
             fill = 0.0
 
-        # Farbe abhängig vom Getränk
-        #if drink == "Kaffee":
-        #    color = QColor("#6f4e37")
-        #else:
-        #    color = QColor("#c68e17")  # z. B. Tee-Gelb
-
         self.cup.set_color(drink)
         self.cup.set_fill_percent(fill)
 
