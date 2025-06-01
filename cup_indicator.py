@@ -17,10 +17,12 @@ class CupIndicator(QWidget):
         self.setSizePolicy(policy)
 
         # SVG laden
-        svg_path = Path(__file__).parent / "resources" / "icon.tea.cup.optimized.svg"
-        self.svg_renderer = QSvgRenderer(str(svg_path))
-        if not svg_path.exists() or not self.svg_renderer.isValid():
-            print(f"⚠️ SVG nicht gefunden oder ungültig: {svg_path}")
+        cup_svg_path = Path(__file__).parent / "resources" / "icon.tea.cup.optimized.svg"
+        self.base_svg_renderer = QSvgRenderer(str(cup_svg_path))
+        self.overlay_svg_renderer = None
+
+        if not cup_svg_path.exists() or not self.base_svg_renderer.isValid():
+            print(f"⚠️ SVG nicht gefunden oder ungültig: {cup_svg_path}")
         else:
             print("✅ SVG Renderer ist valide.")
 
@@ -50,6 +52,12 @@ class CupIndicator(QWidget):
             self.color = QColor("#6f4e37")
         elif drink_type == "tee":
             self.color = QColor("#c68e17")
+            teabag_svg_path = Path(__file__).parent / "resources" / "icon.teabag.optimized.svg"
+
+            if teabag_svg_path.exists():
+                self.overlay_svg_renderer = QSvgRenderer(str(teabag_svg_path))
+            else:
+                print(f"⚠️ Teebeutel-SVG nicht gefunden: {teabag_svg_path}")
         else:
             self.color = QColor("#ff007f")
         self.update()
@@ -68,13 +76,13 @@ class CupIndicator(QWidget):
         # Hilfgrößen zur Positionierung
         margin = side * 0.1
         center_x = square.center().x() - (margin * 0.95)
-        bottom_y = square.bottom() - (margin * 1.3)
+        #bottom_y = square.bottom() - (margin * 1.3)
         cup_full_height = (square.height() - 2 * margin) * 0.8
         top_width = cup_full_height - (1.1 * margin)
         bottom_width = cup_full_height - margin
 
         # SVG zeichnen (innerhalb Quadrat, mit Rand)
-        if self.svg_renderer.isValid():
+        if self.base_svg_renderer.isValid():
             svg_rect = QRectF(
                 square.left() + margin,
                 square.top() + margin,
@@ -108,5 +116,15 @@ class CupIndicator(QWidget):
             painter.setBrush(QBrush(self.color))
             painter.drawPolygon(fill_polygon)
 
-            # SVG darüber rendern
-            self.svg_renderer.render(painter, svg_rect)
+            # Cup SVG darüber rendern
+            self.base_svg_renderer.render(painter, svg_rect)
+            
+            # Teebeutel SVG darüber rendern
+            if self.overlay_svg_renderer and self.overlay_svg_renderer.isValid():
+                teabag_rect = QRectF(
+                    svg_rect.left() + svg_rect.width() * 0.2,
+                    svg_rect.top() - svg_rect.height() * 0.2,
+                    svg_rect.width() * 0.6,
+                    svg_rect.height() * 0.6
+                )
+                self.overlay_svg_renderer.render(painter, teabag_rect)
