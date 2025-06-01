@@ -82,21 +82,25 @@ class CupIndicator(QWidget):
                 side - 2 * margin
             )
 
-            # Flüssigkeitstrapez berechnen
-            bottom_y = svg_rect.bottom() - side * 0.045
-            top_y = bottom_y - (svg_rect.height() * self.fill_percent) + (side * 0.05)
+            
+            # Fülltrapez berechnen
+            cup_height = svg_rect.height() * 0.8
+            cup_bottom_y = svg_rect.bottom() - svg_rect.height() * 0.05
+            #cup_top_y = cup_bottom_y - cup_height
+            fill_top_y = cup_bottom_y - self.fill_percent * cup_height
+            relative_fill_height = cup_bottom_y - fill_top_y
 
-            top_width = svg_rect.width() * 0.75 # HIER BESSER ANPASSEN
+            slope = 20 / 165  # aus SVG
             bottom_width = svg_rect.width() * 0.55
+            top_width = bottom_width + 1.9 * (relative_fill_height * slope)
 
-            center_x = svg_rect.center().x() - side * 0.095
+            center_x = svg_rect.center().x() - side * 0.095  # ggf. Feinkorrektur
 
-            # Eckpunkte des Trapezes
             fill_polygon = QPolygonF([
-                QPointF(center_x - bottom_width / 2, bottom_y),
-                QPointF(center_x + bottom_width / 2, bottom_y),
-                QPointF(center_x + top_width / 2, top_y),
-                QPointF(center_x - top_width / 2, top_y),
+                QPointF(center_x - bottom_width / 2, cup_bottom_y),
+                QPointF(center_x + bottom_width / 2, cup_bottom_y),
+                QPointF(center_x + top_width / 2, fill_top_y),
+                QPointF(center_x - top_width / 2, fill_top_y),
             ])
 
             # Flüssigkeit zeichnen
