@@ -8,7 +8,7 @@ from PySide6.QtSvg import QSvgRenderer
 class CupIndicator(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.fill_percent = 0.5
+        self.fill_percent = 1
         self.color = QColor("#6f4e37")
 
         # SizePolicy mit height-for-width
@@ -65,34 +65,44 @@ class CupIndicator(QWidget):
         y = (self.height() - side) / 2
         square = QRectF(x, y, side, side)
 
-        # Geometrie für Flüssigkeit
-        full_height = square.height()
-        top_width = 0.75 * full_height
-        bottom_width = 0.5 * top_width
-        fill_height = full_height * self.fill_percent
-        bottom_y = square.bottom()
-        fill_top_y = bottom_y - fill_height
-        center_x = square.center().x()
-
-        # Füllform (Trapez)
-        fill_shape = QPolygonF([
-            QPointF(center_x - bottom_width / 2, bottom_y),
-            QPointF(center_x + bottom_width / 2, bottom_y),
-            QPointF(center_x + top_width / 2, fill_top_y),
-            QPointF(center_x - top_width / 2, fill_top_y),
-        ])
-
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(QBrush(self.color))
-        painter.drawPolygon(fill_shape)
+        # Hilfgrößen zur Positionierung
+        margin = side * 0.1
+        center_x = square.center().x() - (margin * 0.95)
+        bottom_y = square.bottom() - (margin * 1.3)
+        cup_full_height = (square.height() - 2 * margin) * 0.8
+        top_width = cup_full_height - (1.1 * margin)
+        bottom_width = cup_full_height - margin
 
         # SVG zeichnen (innerhalb Quadrat, mit Rand)
         if self.svg_renderer.isValid():
-            margin = side * 0.1
             svg_rect = QRectF(
                 square.left() + margin,
                 square.top() + margin,
                 side - 2 * margin,
                 side - 2 * margin
             )
+
+            # Flüssigkeitstrapez berechnen
+            bottom_y = svg_rect.bottom() - side * 0.045
+            top_y = bottom_y - (svg_rect.height() * self.fill_percent) + (side * 0.05)
+
+            top_width = svg_rect.width() * 0.75 # HIER BESSER ANPASSEN
+            bottom_width = svg_rect.width() * 0.55
+
+            center_x = svg_rect.center().x() - side * 0.095
+
+            # Eckpunkte des Trapezes
+            fill_polygon = QPolygonF([
+                QPointF(center_x - bottom_width / 2, bottom_y),
+                QPointF(center_x + bottom_width / 2, bottom_y),
+                QPointF(center_x + top_width / 2, top_y),
+                QPointF(center_x - top_width / 2, top_y),
+            ])
+
+            # Flüssigkeit zeichnen
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(self.color))
+            painter.drawPolygon(fill_polygon)
+
+            # SVG darüber rendern
             self.svg_renderer.render(painter, svg_rect)

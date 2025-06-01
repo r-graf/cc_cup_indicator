@@ -9,3 +9,7 @@ Die Logik der Getränkeauswahl und -konfiguration erfolgt in einer separaten Dem
 - Dynamische, zustandsabhängige Visualisierung der Tasse (z. B. Milchanteil, Getränkefarbe, Füllstand)
 - Berücksichtigung responsiver Layoutanpassung bei Fenstergrößenänderung und Vollbild
 - Fokus liegt auf Wiederverwendbarkeit, Kapselung und grafischer Darstellung im CC
+
+## Weitere Ideen
+- Hinzufügen von Teebeutel für Farbenbilde
+- Dark und Light Theme
