@@ -17,7 +17,7 @@ class CupIndicator(QWidget):
         self.setSizePolicy(policy)
 
         # SVG laden
-        cup_svg_path = Path(__file__).parent / "resources" / "icon.tea.cup.optimized.svg"
+        cup_svg_path = Path(__file__).parent / "resources" / "icon.cup.svg"
         self.base_svg_renderer = QSvgRenderer(str(cup_svg_path))
         self.overlay_svg_renderer = None
 
@@ -52,7 +52,7 @@ class CupIndicator(QWidget):
             self.color = QColor("#6f4e37")
         elif drink_type == "tee":
             self.color = QColor("#c68e17")
-            teabag_svg_path = Path(__file__).parent / "resources" / "icon.teabag.optimized.svg"
+            teabag_svg_path = Path(__file__).parent / "resources" / "icon.teabag.svg"
 
             if teabag_svg_path.exists():
                 self.overlay_svg_renderer = QSvgRenderer(str(teabag_svg_path))
@@ -122,8 +122,8 @@ class CupIndicator(QWidget):
             # Teebeutel SVG darüber rendern
             if self.overlay_svg_renderer and self.overlay_svg_renderer.isValid():
                 teabag_rect = QRectF(
-                    svg_rect.left() + svg_rect.width() * 0.2,
-                    svg_rect.top() - svg_rect.height() * 0.2,
+                    svg_rect.left() - svg_rect.height() * 0.2,
+                    svg_rect.top() - svg_rect.height() * 0.03,
                     svg_rect.width() * 0.6,
                     svg_rect.height() * 0.6
                 )
