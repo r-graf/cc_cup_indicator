@@ -10,11 +10,13 @@ class CupIndicator(QWidget):
         super().__init__(parent)
         self.fill_percent = 1
         self.color = QColor("#6f4e37")
+        self.background_color = QColor("white")
 
         # SizePolicy mit height-for-width
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         policy.setHeightForWidth(True)
         self.setSizePolicy(policy)
+        self.setMinimumSize(4 * QFontMetrics(self.font()).height(), 4 * QFontMetrics(self.font()).height())
 
         # SVG laden
         cup_svg_path = Path(__file__).parent / "resources" / "icon.cup.svg"
@@ -26,15 +28,15 @@ class CupIndicator(QWidget):
         else:
             print("✅ SVG Renderer ist valide.")
     
-    # Löschen
+    # Policy Einstellung
     def hasHeightForWidth(self) -> bool:
         return True
     
-    # Löschen
+    # Policy Einstellung
     def heightForWidth(self, width: int) -> int:
         return width
 
-    # Löschen
+    # Policy Definierung
     def sizeHint(self) -> QSize:
         font_size = QFontMetrics(self.font()).height()
         size = max(4 * font_size, 100)
@@ -69,9 +71,12 @@ class CupIndicator(QWidget):
         """Setzt die Intensität des Getränkes um"""
         alpha = (intensity * 25.5)
         color = self.color
+        background = self.background_color
         color.setAlpha(alpha)
+        background.setAlpha(max(100-alpha, 0))
         self.color = color
-        print(f"Setze Intensität: {intensity}, Alpha: {alpha}, Farbe: {self.color.name()} mit alpha={self.color.alpha()}")
+        self.background_color = background
+        print(f"Setze Intensität: {intensity}, Alpha: {alpha}, Farbe: {self.color.name()} mit alpha={self.color.alpha()} und Hintergrund {self.background_color.alpha()}")
         self.update()
 
     def paintEvent(self, event):
@@ -123,6 +128,18 @@ class CupIndicator(QWidget):
                 QPointF(center_x - top_width / 2, fill_top_y),
             ])
 
+            background_polygon = QPolygonF([
+                QPointF(center_x - bottom_width / 2, cup_bottom_y),
+                QPointF(center_x + bottom_width / 2, cup_bottom_y),
+                QPointF(center_x + top_width / 2, fill_top_y),
+                QPointF(center_x - top_width / 2, fill_top_y),
+            ])
+
+            # Hintergrund für intensity = 0, damit man die weiße Milch sehen kann
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(QColor("#8ce5ff")))
+            painter.drawPolygon(background_polygon)
+
             # Flüssigkeit zeichnen
             pen = QPen(QColor("black"))
             pen.setWidth(2)   # z.B. 2 Pixel dick
@@ -136,7 +153,7 @@ class CupIndicator(QWidget):
             # Teebeutel SVG darüber rendern
             if self.overlay_svg_renderer and self.overlay_svg_renderer.isValid():
                 teabag_rect = QRectF(
-                    svg_rect.left() - svg_rect.height() * 0.2,
+                    svg_rect.left() - svg_rect.height() * 0.1,
                     svg_rect.top() - svg_rect.height() * 0.03,
                     svg_rect.width() * 0.6,
                     svg_rect.height() * 0.6
