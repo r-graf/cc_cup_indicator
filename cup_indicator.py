@@ -1,6 +1,6 @@
 from pathlib import Path
 from PySide6.QtWidgets import QWidget, QSizePolicy
-from PySide6.QtGui import QPainter, QColor, QBrush, QPolygonF, QFontMetrics
+from PySide6.QtGui import QPainter, QColor, QBrush, QPolygonF, QFontMetrics, QPen
 from PySide6.QtCore import Qt, QRectF, QPointF, QSize
 from PySide6.QtSvg import QSvgRenderer
 
@@ -25,13 +25,16 @@ class CupIndicator(QWidget):
             print(f"⚠️ SVG nicht gefunden oder ungültig: {cup_svg_path}")
         else:
             print("✅ SVG Renderer ist valide.")
-
+    
+    # Löschen
     def hasHeightForWidth(self) -> bool:
         return True
-
+    
+    # Löschen
     def heightForWidth(self, width: int) -> int:
         return width
 
+    # Löschen
     def sizeHint(self) -> QSize:
         font_size = QFontMetrics(self.font()).height()
         size = max(4 * font_size, 100)
@@ -45,7 +48,7 @@ class CupIndicator(QWidget):
             self.fill_percent = max(0.0, min(1.0, percent))
         self.update()
 
-    def set_color(self, drink_type: str):
+    def set_drink(self, drink_type: str):
         """Setzt die Farbe basierend auf dem Getränketyp."""
         drink_type = drink_type.lower()
         if drink_type == "kaffee":
@@ -60,6 +63,15 @@ class CupIndicator(QWidget):
                 print(f"⚠️ Teebeutel-SVG nicht gefunden: {teabag_svg_path}")
         else:
             self.color = QColor("#ff007f")
+        self.update()
+
+    def set_intensity(self, intensity: float):
+        """Setzt die Intensität des Getränkes um"""
+        alpha = (intensity * 25.5)
+        color = self.color
+        color.setAlpha(alpha)
+        self.color = color
+        print(f"Setze Intensität: {intensity}, Alpha: {alpha}, Farbe: {self.color.name()} mit alpha={self.color.alpha()}")
         self.update()
 
     def paintEvent(self, event):
@@ -112,7 +124,9 @@ class CupIndicator(QWidget):
             ])
 
             # Flüssigkeit zeichnen
-            painter.setPen(Qt.NoPen)
+            pen = QPen(QColor("black"))
+            pen.setWidth(2)   # z.B. 2 Pixel dick
+            painter.setPen(pen)
             painter.setBrush(QBrush(self.color))
             painter.drawPolygon(fill_polygon)
 

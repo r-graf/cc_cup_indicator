@@ -3,7 +3,7 @@
 from cup_indicator import CupIndicator
 import sys
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QSlider
 )
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
@@ -29,6 +29,13 @@ class MainWindow(QMainWindow):
         Layout.addWidget(QLabel("Füllmenge:"))
         Layout.addWidget(self.amount_input)
 
+        # Eingabe Ziehzeit bzw. Intesivität
+        self.intensity_input = QSlider(Qt.Horizontal)
+        self.intensity_input.setMinimum(0)
+        self.intensity_input.setMaximum(10)
+        Layout.addWidget(QLabel("Intensivität:"))
+        Layout.addWidget(self.intensity_input)
+
         # Button Anzeigen, auch für Debugging
         self.submit_button = QPushButton("Anzeigen")
         self.submit_button.clicked.connect(self.print_input)
@@ -47,17 +54,19 @@ class MainWindow(QMainWindow):
     def print_input(self):
         drink = self.drink_selector.currentText()
         amount = self.amount_input.text()
-        print(f"Auswahl: {drink}, Füllmenge: {amount} ml")
+        intensity = self.intensity_input.value()
+        print(f"Auswahl: {drink}, Füllmenge: {amount} ml, Intensität: {intensity}")
         
-        # Simpler Test: z. B. 250ml = 50% Füllstand
+        # Simpler Test: z. B. 250ml = 100% Füllstand
         try:
             ml = int(amount)
-            fill = min(1.0, ml / 500)
+            fill = min(1.0, ml / 250)
         except ValueError:
             fill = 0.0
 
-        self.cup.set_color(drink)
+        self.cup.set_drink(drink)
         self.cup.set_fill_percent(fill)
+        self.cup.set_intensity(intensity)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
