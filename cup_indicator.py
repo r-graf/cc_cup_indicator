@@ -1,6 +1,6 @@
 from pathlib import Path
 from PySide6.QtWidgets import QWidget, QSizePolicy
-from PySide6.QtGui import QPainter, QColor, QBrush, QPolygonF, QFontMetrics, QPen
+from PySide6.QtGui import QPainter, QColor, QBrush, QPolygonF, QFontMetrics, QPen, QLinearGradient
 from PySide6.QtCore import Qt, QRectF, QPointF, QSize
 from PySide6.QtSvg import QSvgRenderer
 
@@ -11,6 +11,8 @@ class CupIndicator(QWidget):
         self.fill_percent = 1
         self.color = QColor("#412e20")
         self.drink_type = "none"
+        self.milk = False
+        self.gradient = QLinearGradient()
 
         # SizePolicy mit height-for-width
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -44,7 +46,7 @@ class CupIndicator(QWidget):
 
     def set_fill_percent(self, percent: float):
         """Setzt den Füllstand im Bereich 0.0–1.0."""
-        if self.color == QColor("#ff007f"):
+        if self.drink_type == "unknown":
             self.fill_percent = 1.0
         else:
             self.fill_percent = max(0.0, min(1.0, percent))
@@ -53,7 +55,7 @@ class CupIndicator(QWidget):
     def set_drink(self, drink_type: str):
         """Setzt die Farbe basierend auf dem Getränketyp."""
         self.drink_type = drink_type.lower()
-        if self.drink_type == "kaffee":
+        if self.drink_type == "kaffee": # Hier braucht man die Farben nicht einstellen, dass kann man sich wegen set_intensity sparen
             self.color = QColor("#412e20")
         elif self.drink_type == "tee":
             self.color = QColor("#c68e17")
@@ -64,11 +66,28 @@ class CupIndicator(QWidget):
             else:
                 print(f"⚠️ Teebeutel-SVG nicht gefunden: {teabag_svg_path}")
         else:
+            self.drink_type = "unknown"
             self.color = QColor("#ff007f")
+        self.update()
+
+    def set_milk(self, milk: bool):
+        self.milk = milk
+        if self.milk == True:
+            gradient = QLinearGradient(0, 0, 0, 1)  # Vertikaler Gradient
+            gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
+            color = self.color
+            gradient.setColorAt(0.0, QColor("#f9f4ef"))
+            gradient.setColorAt(0.1, QColor("#f9f4ef"))
+            gradient.setColorAt(0.3, color)
+            #gradient.setColorAt(1.0, color)
+            self.gradient = gradient
         self.update()
 
     def set_intensity(self, intensity: float):
         """Setzt die Intensität des Getränkes um und interpoliert den Farbverlauf"""
+        if (self.drink_type == "unknown"):
+            return
+        
         intensity = max(0, min((intensity/10), 1))
 
         if (self.drink_type == "kaffee"):
@@ -84,7 +103,6 @@ class CupIndicator(QWidget):
         b = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * intensity)
 
         self.color = QColor(r, g, b)
-        print(f"Setze Intensität: {intensity}")
         self.update()
 
     def paintEvent(self, event):
@@ -101,7 +119,6 @@ class CupIndicator(QWidget):
         # Hilfgrößen zur Positionierung
         margin = side * 0.1
         center_x = square.center().x() - (margin * 0.95)
-        #bottom_y = square.bottom() - (margin * 1.3)
         cup_full_height = (square.height() - 2 * margin) * 0.8
         top_width = cup_full_height - (1.1 * margin)
         bottom_width = cup_full_height - margin
@@ -114,12 +131,10 @@ class CupIndicator(QWidget):
                 side - 2 * margin,
                 side - 2 * margin
             )
-
             
             # Fülltrapez berechnen
             cup_height = svg_rect.height() * 0.8
             cup_bottom_y = svg_rect.bottom() - svg_rect.height() * 0.05
-            #cup_top_y = cup_bottom_y - cup_height
             fill_top_y = cup_bottom_y - self.fill_percent * cup_height
             relative_fill_height = cup_bottom_y - fill_top_y
 
@@ -136,23 +151,14 @@ class CupIndicator(QWidget):
                 QPointF(center_x - top_width / 2, fill_top_y),
             ])
 
-            background_polygon = QPolygonF([
-                QPointF(center_x - bottom_width / 2, cup_bottom_y),
-                QPointF(center_x + bottom_width / 2, cup_bottom_y),
-                QPointF(center_x + top_width / 2, fill_top_y),
-                QPointF(center_x - top_width / 2, fill_top_y),
-            ])
-
-            # Hintergrund für intensity = 0, damit man die weiße Milch sehen kann
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(QBrush(QColor("#8ce5ff")))
-            #painter.drawPolygon(background_polygon)
-
             # Flüssigkeit zeichnen
             pen = QPen(QColor("black"))
             pen.setWidth(2)   # z.B. 2 Pixel dick
             painter.setPen(pen)
-            painter.setBrush(QBrush(self.color))
+            if self.milk == True:
+                painter.setBrush(QBrush(self.gradient))
+            else:
+                painter.setBrush(QBrush(self.color))
             painter.drawPolygon(fill_polygon)
 
             # Cup SVG darüber rendern

@@ -3,7 +3,7 @@
 from cup_indicator import CupIndicator
 import sys
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QSlider
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QSlider, QCheckBox
 )
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
@@ -22,6 +22,11 @@ class MainWindow(QMainWindow):
         self.drink_selector.addItems(["Kaffee", "Tee", "Schnaps"])
         Layout.addWidget(QLabel("Getränk auswählen:"))
         Layout.addWidget(self.drink_selector)
+
+        # Haken für die Milchauswahl
+        self.milk_selector = QCheckBox("Milch", self)
+        Layout.addWidget(QLabel("Milch"))
+        Layout.addWidget(self.milk_selector)
         
         # Eingabe Füllmenge
         self.amount_input = QLineEdit()
@@ -55,7 +60,8 @@ class MainWindow(QMainWindow):
         drink = self.drink_selector.currentText()
         amount = self.amount_input.text()
         intensity = self.intensity_input.value()
-        print(f"Auswahl: {drink}, Füllmenge: {amount} ml, Intensität: {intensity}")
+        milk = self.milk_selector.isChecked()
+        print(f"Auswahl: {drink}, Füllmenge: {amount} ml, Intensität: {intensity}, Milch: {milk}")
         
         # Simpler Test: z. B. 250ml = 100% Füllstand
         try:
@@ -67,6 +73,7 @@ class MainWindow(QMainWindow):
         self.cup.set_drink(drink)
         self.cup.set_fill_percent(fill)
         self.cup.set_intensity(intensity)
+        self.cup.set_milk(milk)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
