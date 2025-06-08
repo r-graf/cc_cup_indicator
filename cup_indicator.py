@@ -70,16 +70,15 @@ class CupIndicator(QWidget):
             self.color = QColor("#ff007f")
         self.update()
 
-    def set_milk(self, milk: bool):
+    def set_milk(self, milk: bool, amount: int):
         self.milk = milk
         if self.milk == True:
             gradient = QLinearGradient(0, 0, 0, 1)  # Vertikaler Gradient
             gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
             color = self.color
             gradient.setColorAt(0.0, QColor("#f9f4ef"))
-            gradient.setColorAt(0.1, QColor("#f9f4ef"))
-            gradient.setColorAt(0.3, color)
-            #gradient.setColorAt(1.0, color)
+            gradient.setColorAt(0.2 * (amount/100), QColor("#f9f4ef"))
+            gradient.setColorAt(0.6 * (amount/100), color)
             self.gradient = gradient
         self.update()
 

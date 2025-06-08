@@ -25,8 +25,10 @@ class MainWindow(QMainWindow):
 
         # Haken für die Milchauswahl
         self.milk_selector = QCheckBox("Milch", self)
+        self.milk_amount = QSlider(Qt.Horizontal)
         Layout.addWidget(QLabel("Milch"))
         Layout.addWidget(self.milk_selector)
+        Layout.addWidget(self.milk_amount)
         
         # Eingabe Füllmenge
         self.amount_input = QLineEdit()
@@ -61,7 +63,8 @@ class MainWindow(QMainWindow):
         amount = self.amount_input.text()
         intensity = self.intensity_input.value()
         milk = self.milk_selector.isChecked()
-        print(f"Auswahl: {drink}, Füllmenge: {amount} ml, Intensität: {intensity}, Milch: {milk}")
+        milk_amount = self.milk_amount.value()
+        print(f"Auswahl: {drink}, Füllmenge: {amount} ml, Intensität: {intensity}, Milch: {milk}, Milchmenge: {milk_amount}")
         
         # Simpler Test: z. B. 250ml = 100% Füllstand
         try:
@@ -73,7 +76,7 @@ class MainWindow(QMainWindow):
         self.cup.set_drink(drink)
         self.cup.set_fill_percent(fill)
         self.cup.set_intensity(intensity)
-        self.cup.set_milk(milk)
+        self.cup.set_milk(milk, milk_amount)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
