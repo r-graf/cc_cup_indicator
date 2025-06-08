@@ -9,8 +9,8 @@ class CupIndicator(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.fill_percent = 1
-        self.color = QColor("#6f4e37")
-        self.background_color = QColor("white")
+        self.color = QColor("#412e20")
+        self.drink_type = "none"
 
         # SizePolicy mit height-for-width
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -52,10 +52,10 @@ class CupIndicator(QWidget):
 
     def set_drink(self, drink_type: str):
         """Setzt die Farbe basierend auf dem Getränketyp."""
-        drink_type = drink_type.lower()
-        if drink_type == "kaffee":
-            self.color = QColor("#6f4e37")
-        elif drink_type == "tee":
+        self.drink_type = drink_type.lower()
+        if self.drink_type == "kaffee":
+            self.color = QColor("#412e20")
+        elif self.drink_type == "tee":
             self.color = QColor("#c68e17")
             teabag_svg_path = Path(__file__).parent / "resources" / "icon.teabag.svg"
 
@@ -68,15 +68,23 @@ class CupIndicator(QWidget):
         self.update()
 
     def set_intensity(self, intensity: float):
-        """Setzt die Intensität des Getränkes um"""
-        alpha = (intensity * 25.5)
-        color = self.color
-        background = self.background_color
-        color.setAlpha(alpha)
-        background.setAlpha(max(100-alpha, 0))
-        self.color = color
-        self.background_color = background
-        print(f"Setze Intensität: {intensity}, Alpha: {alpha}, Farbe: {self.color.name()} mit alpha={self.color.alpha()} und Hintergrund {self.background_color.alpha()}")
+        """Setzt die Intensität des Getränkes um und interpoliert den Farbverlauf"""
+        intensity = max(0, min((intensity/10), 1))
+
+        if (self.drink_type == "kaffee"):
+            start_rgb = (147, 104, 73)   # #936849 Hellbraun
+            end_rgb   = ( 65,  46, 32)   # #412e20 Dunkelbraun
+        if (self.drink_type == "tee"):
+            start_rgb = (232, 177, 61)   # #e8b13d helles Ocker
+            end_rgb   = (139,  99, 16)   # #8b6310 dunkles Ocker
+
+        # Interpolation
+        r = int(start_rgb[0] + (end_rgb[0] - start_rgb[0]) * intensity)
+        g = int(start_rgb[1] + (end_rgb[1] - start_rgb[1]) * intensity)
+        b = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * intensity)
+
+        self.color = QColor(r, g, b)
+        print(f"Setze Intensität: {intensity}")
         self.update()
 
     def paintEvent(self, event):
@@ -138,7 +146,7 @@ class CupIndicator(QWidget):
             # Hintergrund für intensity = 0, damit man die weiße Milch sehen kann
             painter.setPen(Qt.NoPen)
             painter.setBrush(QBrush(QColor("#8ce5ff")))
-            painter.drawPolygon(background_polygon)
+            #painter.drawPolygon(background_polygon)
 
             # Flüssigkeit zeichnen
             pen = QPen(QColor("black"))

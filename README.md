@@ -11,5 +11,12 @@ Die Logik der Getränkeauswahl und -konfiguration erfolgt in einer separaten Dem
 - Fokus liegt auf Wiederverwendbarkeit, Kapselung und grafischer Darstellung im CC
 
 ## Weitere Ideen
-- Hinzufügen von Teebeutel für Farbenbilde
 - Dark und Light Theme
+
+## Verbesserungen
+- Dicke der Stricke in der SVG
+- besseres Anpassen der Überlagerungen der SVG Grafik und des Flüssigkeitspolygons
+
+# Features
+- Teebeutel zur optischen Unterscheidung bei Farbblindheit
+- Interpolation der Farben für optisch ansprechende Farbgebung der Intensität
