@@ -6,20 +6,38 @@ from PySide6.QtSvg import QSvgRenderer
 
 
 class CupIndicator(QWidget):
+
+    """
+    Custom QWidget zur Visualisierung eines Getränkes in einer Tasse mit konfigurierbarem Füllstand,
+    Getränketyp, Milchanteil und Intensität.
+    
+    Signale:
+        fillChanged(float): Signal bei Änderung des Füllstands (0.0 bis 1.0).
+        drinkTypeChanged(str): Signal bei Änderung des Getränketyps ("kaffee", "tee", "unknown").
+        milkChanged(bool, float): Signal bei Änderung des Milchstatus (Bool) und Milchmenge (0-100).
+        intensityChanged(float): Signal bei Änderung der Intensität (0.0 bis 1.0).
+    """
+
     fillChanged = Signal(float)
     drinkTypeChanged = Signal(str)
     milkChanged = Signal(bool, float)
     intensityChanged = Signal(float)
 
     def __init__(self, parent=None):
+
+        """
+        Initialisiert das CupIndicator-Widget mit Standardwerten und lädt die SVG-Grafiken.
+        Setzt außerdem die Größenrichtlinien.
+        """
+
         super().__init__(parent)
-        self._fill_percent = 1
+        self._fill_percent = 1.0
         self._color = QColor("#412e20")
         self._drink_type = "none"
         self._milk = False
-        self._amount_milk = 0
+        self._amount_milk = 0.0
         self._gradient = QLinearGradient()
-        self._intensity = 1,
+        self._intensity = 1.0
 
         # SizePolicy mit height-for-width
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -39,25 +57,34 @@ class CupIndicator(QWidget):
     
     # Policy Einstellung
     def hasHeightForWidth(self) -> bool:
+        """Gibt an, dass die Höhe von der Breite abhängt."""
         return True
     
     # Policy Einstellung
     def heightForWidth(self, width: int) -> int:
+        """Berechnet die Höhe basierend auf der aktuellen Breite (Quadratische Form)."""
         return width
 
     # Policy Definierung
     def sizeHint(self) -> QSize:
+        """Empfiehlt eine Standardgröße basierend auf der Schriftgröße, mindestens 100x100."""
         font_size = QFontMetrics(self.font()).height()
         size = max(4 * font_size, 100)
         return QSize(size, size)
 
     @property
     def fill_percent(self):
+        """Gibt den aktuellen Füllstand als Wert zwischen 0.0 und 1.0 zurück."""
         return self._fill_percent
 
     @fill_percent.setter
     def fill_percent(self, percent: float):
-        """Setzt den Füllstand im Bereich 0.0–1.0."""
+        """
+        Setzt den Füllstand der Tasse.
+        Der Wert wird auf den Bereich 0.0 bis 1.0 begrenzt.
+        Bei unbekanntem Getränketyp wird der Füllstand auf 1.0 gesetzt.
+        Emitiert das fillChanged-Signal.
+        """
         if self._drink_type == "unknown":
             self._fill_percent = 1.0
         else:
@@ -67,11 +94,16 @@ class CupIndicator(QWidget):
 
     @property
     def drink_type(self):
+        """Gibt den aktuellen Getränketyp zurück ("kaffee", "tee", "unknown")."""
         return self._drink_type
 
     @drink_type.setter
     def drink_type(self, drink_type: str):
-        """Setzt die Farbe basierend auf dem Getränketyp."""
+        """
+        Setzt den Getränketyp und passt die Farbe sowie das Overlay (z.B. Teebeutel) entsprechend an.
+        Unterstützt "kaffee" und "tee". Bei unbekanntem Typ wird ein rotes X angezeigt.
+        Emitiert das drinkTypeChanged-Signal.
+        """
         self._drink_type = drink_type.lower()
         if self._drink_type == "kaffee":
             self._color = QColor("#412e20")
@@ -93,13 +125,22 @@ class CupIndicator(QWidget):
 
     @property
     def milk(self):
+        """Gibt zurück, ob Milch hinzugefügt wurde."""
         return self._milk
 
     @milk.setter
     def milk(self, value: tuple[bool, float]):
+        """
+        Setzt den Milchstatus und die Milchmenge (0-100 %).
+        Erzeugt einen vertikalen Farbverlauf für die Milch.
+        Emitiert das milkChanged-Signal.
+        
+        Args:
+            value (tuple[bool, float]): Tuple mit (Milch aktiv?, Milchmenge in %)
+        """
         milk, amount = value
         self._milk = milk
-        self._amount_milk = amount
+        self._amount_milk = max(0, min( 100, amount))
         if self._milk == True:
             gradient = QLinearGradient(0, 0, 0, 1)  # Vertikaler Gradient
             gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
@@ -113,11 +154,16 @@ class CupIndicator(QWidget):
 
     @property
     def intensity(self):
+        """Gibt die aktuelle Intensität des Getränks zurück (0.0 bis 1.0)."""
         return self._intensity
 
     @intensity.setter
     def intensity(self, intensity: float):
-        """Setzt die Intensität des Getränkes um und interpoliert den Farbverlauf"""
+        """
+        Setzt die Intensität (0 bis 10) des Getränks und interpoliert die Farbe.
+        Ignoriert den Wert, wenn der Getränketyp unbekannt ist.
+        Emitiert das intensityChanged-Signal.
+        """
         if (self._drink_type == "unknown"):
             return
         
@@ -140,6 +186,10 @@ class CupIndicator(QWidget):
         self.update()
 
     def paintEvent(self, event):
+        """
+        Überschreibt das Paint-Event, um die Tasse mit Füllstand, Milch und ggf. Teebeutel oder
+        Fehleranzeige (X) zu zeichnen.
+        """
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.fillRect(self.rect(), Qt.white)

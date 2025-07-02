@@ -1,22 +1,76 @@
 # Entwicklung eines objektorientierten Customized Controls zur Visualisierung individueller Getränkekonfigurationen in PySide6
 
 ## Kurzbeschreibung/Zielsetzung:
-Im Rahmen der Modularbeit soll ein benutzerdefiniertes Customized Control (CC) in PySide entwickelt werden, das die grafische Darstellung einer konfigurierbaren Tasse (Kaffee oder Tee) übernimmt. Die grafische Tasse dient der Visualisierung von benutzerspezifischen Eingaben wie Getränketyp, Milchmenge, Milchschaum, Füllstand, Ziehzeit (bei Tee) bzw. Stärke (bei Kaffee).
-Die Logik der Getränkeauswahl und -konfiguration erfolgt in einer separaten Demoanwendung, die das Verhalten des CC demonstriert.
+Im Rahmen dieser Modularbeit wurde ein benutzerdefiniertes Custom Control (CC) in PySide6 entwickelt, das eine grafische Tasse visualisiert. Dieses CC ermöglicht die dynamische Darstellung von konfigurierbaren Getränkeparametern wie Getränketyp (z.B. Kaffee oder Tee), Füllstand, Milchanteil und Intensität (z.B. Ziehzeit bei Tee oder Stärke bei Kaffee).
+
+Die Logik zur Getränkeauswahl und -konfiguration ist in einer separaten Demoanwendung implementiert, die das Custom Control anschaulich nutzt und seine Wiederverwendbarkeit demonstriert.
 
 ## Technische Schwerpunkte:
-- Entwicklung eines OO-basierten, skalierbaren CC mit PySide
-- Dynamische, zustandsabhängige Visualisierung der Tasse (z. B. Milchanteil, Getränkefarbe, Füllstand)
-- Berücksichtigung responsiver Layoutanpassung bei Fenstergrößenänderung und Vollbild
-- Fokus liegt auf Wiederverwendbarkeit, Kapselung und grafischer Darstellung im CC
+Objektorientierte Implementierung: Entwicklung eines modularen, wartbaren Custom Controls als PySide6 QWidget
 
-## Weitere Ideen
-- Dark und Light Theme
+Dynamische Visualisierung: Zustandsabhängige Darstellung der Tasse inklusive Flüssigkeitsfüllstand, Milchanteil mit Farbverlauf, Getränkefarbe und Intensitätsinterpolation
 
-## Verbesserungen
-- Dicke der Stricke in der SVG
-- besseres Anpassen der Überlagerungen der SVG Grafik und des Flüssigkeitspolygons
+Responsive Layouts: Unterstützung von Layout-Managern für flexible Größen- und Positionsanpassung
 
-# Features
-- Teebeutel zur optischen Unterscheidung bei Farbblindheit
-- Interpolation der Farben für optisch ansprechende Farbgebung der Intensität
+Ereignisgesteuerte Architektur: Signale für Zustandsänderungen ermöglichen die Integration in komplexe Anwendungen
+
+Ressourcenmanagement: Nutzung von SVG-Grafiken für ansprechende und skalierbare Darstellungen
+
+## Features
+
+Getränketyp-spezifische Darstellung: Farbe und Overlays (z.B. Teebeutel-SVG bei Tee)
+
+Interpolation der Farbintensität: Sanfter Farbverlauf zwischen hell und dunkel für realistische Darstellungen
+
+Milchdarstellung: Vertikaler Farbverlauf mit anpassbarer Milchmenge
+
+Füllstand: Prozentsatzgesteuerte Darstellung der Flüssigkeit im Tassenumriss
+
+Fehler-Handling: Visuelles Feedback bei unbekannten Getränketypen (z.B. rotes „X“)
+
+Ereignisse (Signale): Für Änderungen von Füllstand, Getränketyp und Milchstatus zur einfachen Anbindung an andere UI-Komponenten
+
+## Weiterentwicklungsmöglichkeiten
+
+Unterstützung von Dark- und Light-Themes
+
+Verbesserung der SVG-Overlay-Positionierung und -Skalierung
+
+Erweiterung um Milchschaum-Visualisierung
+
+Feinjustierung der Strichdicken und Farbnuancen der SVGs
+
+## Nutzung/Beispiel
+
+Das Custom Control CupIndicator kann wie ein normales Widget in Layouts verwendet werden. Seine Eigenschaften (fill_percent, drink_type, milk, intensity) lassen sich über Properties anpassen, und es stellt Signale (fillChanged, drinkTypeChanged, milkChanged) bereit, um auf Änderungen zu reagieren.
+
+```python
+from cup_indicator import CupIndicator
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+
+app = QApplication([])
+window = QMainWindow()
+container = QWidget()
+layout = QVBoxLayout(container)
+
+cup = CupIndicator()
+cup.fill_percent = 0.75
+cup.drink_type = "kaffee"
+cup.milk = (True, 20)
+cup.intensity = 7
+
+layout.addWidget(cup)
+window.setCentralWidget(container)
+window.show()
+app.exec()
+
+```
+
+## Abhängigkeiten
+
+Python 3.7+
+
+PySide6
+
+SVG-Ressourcen im resources-Ordner (z.B. icon.cup.svg, icon.teabag.svg)
+
