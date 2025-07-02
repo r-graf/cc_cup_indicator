@@ -20,7 +20,7 @@ Die Logik zur Getränkeauswahl und -konfiguration ist in einer separaten Demoanw
 
 ## Features
 
-**Getränketyp-spezifische Darstellung:** Farbe und Overlays (z.B. Teebeutel-SVG bei Tee)
+**Getränketyp-spezifische Darstellung:** Farbe und Overlays (z.B. Teebeutel-SVG bei Tee). Aktuell ist die Auswahl zwischen Kaffee und Tee möglich. Unbekannte Getränke werden grafisch in der GUI visualisiert.
 
 **Interpolation der Farbintensität:** Sanfter Farbverlauf zwischen hell und dunkel für realistische Darstellungen
 
