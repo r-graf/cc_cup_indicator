@@ -140,7 +140,7 @@ class CupIndicator(QWidget):
 
             slope = 20 / 165  # aus SVG
             bottom_width = svg_rect.width() * 0.55
-            top_width = bottom_width + 1.87 * (relative_fill_height * slope)
+            top_width = bottom_width + 1.55 * (relative_fill_height * slope)
 
             center_x = svg_rect.center().x() - side * 0.095  # ggf. Feinkorrektur
 
@@ -155,7 +155,7 @@ class CupIndicator(QWidget):
             pen = QPen(QColor("black"))
             pen.setWidth(2)   # z.B. 2 Pixel dick
             painter.setPen(pen)
-            if self.milk == True:
+            if self.milk == True and self.drink_type != "unknown":
                 painter.setBrush(QBrush(self.gradient))
             else:
                 painter.setBrush(QBrush(self.color))
@@ -173,7 +173,7 @@ class CupIndicator(QWidget):
                 font.setBold(True)
                 painter.setFont(font)
 
-                x_shift = svg_rect.center().x() - (side * 0.2)
+                x_shift = svg_rect.center().x() - (side * 0.25)
                 y_pos = svg_rect.center().y() + (side * 0.2)
 
                 painter.setPen(QPen(QColor("white"), 4))
