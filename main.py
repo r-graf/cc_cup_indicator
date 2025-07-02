@@ -50,6 +50,10 @@ class MainWindow(QMainWindow):
 
         # Custom Control: CupIndicator
         self.cup = CupIndicator()
+        self.cup.fillChanged.connect(self.on_fill_changed)
+        self.cup.drinkTypeChanged.connect(self.on_drink_type_changed)
+        self.cup.milkChanged.connect(self.on_milk_changed)
+        self.cup.intensityChanged.connect(self.on_intensity_changed)
         Layout.addWidget(QLabel("Visualisierung:"))
         Layout.addWidget(self.cup)
 
@@ -78,6 +82,18 @@ class MainWindow(QMainWindow):
         self.cup.fill_percent = fill
         self.cup.intensity = intensity
         self.cup.milk = (milk, milk_amount)
+
+    def on_fill_changed(self, new_fill):
+        print(f"[Signal] Füllstand wurde geändert auf: {new_fill:.2f}")
+
+    def on_drink_type_changed(self, new_type):
+        print(f"[Signal] Getränketyp wurde geändert auf: {new_type}")
+
+    def on_milk_changed(self, has_milk: bool, amount: float):
+        print(f"[Signal] Milch geändert: {has_milk}, Menge: {amount}")
+
+    def on_intensity_changed(self, intensity: float):
+        print(f"[Signal] Intensität geändert auf: {intensity}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

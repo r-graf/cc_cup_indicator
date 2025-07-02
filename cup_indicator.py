@@ -1,17 +1,23 @@
 from pathlib import Path
 from PySide6.QtWidgets import QWidget, QSizePolicy
 from PySide6.QtGui import QPainter, QColor, QBrush, QPolygonF, QFontMetrics, QPen, QLinearGradient
-from PySide6.QtCore import Qt, QRectF, QPointF, QSize
+from PySide6.QtCore import Qt, QRectF, QPointF, QSize, Signal
 from PySide6.QtSvg import QSvgRenderer
 
 
 class CupIndicator(QWidget):
+    fillChanged = Signal(float)
+    drinkTypeChanged = Signal(str)
+    milkChanged = Signal(bool, float)
+    intensityChanged = Signal(float)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._fill_percent = 1
         self._color = QColor("#412e20")
         self._drink_type = "none"
         self._milk = False
+        self._amount_milk = 0
         self._gradient = QLinearGradient()
         self._intensity = 1,
 
@@ -56,6 +62,7 @@ class CupIndicator(QWidget):
             self._fill_percent = 1.0
         else:
             self._fill_percent = max(0.0, min(1.0, percent))
+        self.fillChanged.emit(self._fill_percent)
         self.update()
 
     @property
@@ -81,6 +88,7 @@ class CupIndicator(QWidget):
             self._drink_type = "unknown"
             self.overlay_svg_renderer = None  # Teebeutel sofort deaktivieren
             self._color = QColor("#ff007f")
+        self.drinkTypeChanged.emit(self._drink_type)
         self.update()
 
     @property
@@ -91,6 +99,7 @@ class CupIndicator(QWidget):
     def milk(self, value: tuple[bool, float]):
         milk, amount = value
         self._milk = milk
+        self._amount_milk = amount
         if self._milk == True:
             gradient = QLinearGradient(0, 0, 0, 1)  # Vertikaler Gradient
             gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
@@ -99,6 +108,7 @@ class CupIndicator(QWidget):
             gradient.setColorAt(0.2 * (amount/100), QColor("#f9f4ef"))
             gradient.setColorAt(0.6 * (amount/100), color)
             self._gradient = gradient
+        self.milkChanged.emit(self._milk, self._amount_milk)
         self.update()
 
     @property
@@ -126,6 +136,7 @@ class CupIndicator(QWidget):
         b = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * self._intensity)
 
         self._color = QColor(r, g, b)
+        self.intensityChanged.emit(self._intensity)
         self.update()
 
     def paintEvent(self, event):
