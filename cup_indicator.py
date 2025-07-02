@@ -26,9 +26,9 @@ class CupIndicator(QWidget):
         self.overlay_svg_renderer = None
 
         if not cup_svg_path.exists() or not self.base_svg_renderer.isValid():
-            print(f"⚠️ SVG nicht gefunden oder ungültig: {cup_svg_path}")
+            print(f"SVG nicht gefunden oder ungültig: {cup_svg_path}")
         else:
-            print("✅ SVG Renderer ist valide.")
+            print("SVG Renderer ist valide.")
     
     # Policy Einstellung
     def hasHeightForWidth(self) -> bool:
@@ -64,9 +64,10 @@ class CupIndicator(QWidget):
             if teabag_svg_path.exists():
                 self.overlay_svg_renderer = QSvgRenderer(str(teabag_svg_path))
             else:
-                print(f"⚠️ Teebeutel-SVG nicht gefunden: {teabag_svg_path}")
+                print(f"Teebeutel-SVG nicht gefunden: {teabag_svg_path}")
         else:
             self.drink_type = "unknown"
+            self.overlay_svg_renderer = None  # Teebeutel sofort deaktivieren
             self.color = QColor("#ff007f")
         self.update()
 
@@ -139,7 +140,7 @@ class CupIndicator(QWidget):
 
             slope = 20 / 165  # aus SVG
             bottom_width = svg_rect.width() * 0.55
-            top_width = bottom_width + 1.9 * (relative_fill_height * slope)
+            top_width = bottom_width + 1.87 * (relative_fill_height * slope)
 
             center_x = svg_rect.center().x() - side * 0.095  # ggf. Feinkorrektur
 
@@ -162,6 +163,21 @@ class CupIndicator(QWidget):
 
             # Cup SVG darüber rendern
             self.base_svg_renderer.render(painter, svg_rect)
+
+            # Wenn Getränk nicht erkannt wurde: "X" anzeigen und Teebeutel deaktivieren
+            if self.drink_type == "unknown":
+                self.overlay_svg_renderer = None  # Teebeutel deaktivieren
+
+                font = painter.font()
+                font.setPointSize(int(side * 0.3))
+                font.setBold(True)
+                painter.setFont(font)
+
+                x_shift = svg_rect.center().x() - (side * 0.2)
+                y_pos = svg_rect.center().y() + (side * 0.2)
+
+                painter.setPen(QPen(QColor("white"), 4))
+                painter.drawText(QPointF(x_shift, y_pos), "X")
             
             # Teebeutel SVG darüber rendern
             if self.overlay_svg_renderer and self.overlay_svg_renderer.isValid():
@@ -171,4 +187,5 @@ class CupIndicator(QWidget):
                     svg_rect.width() * 0.6,
                     svg_rect.height() * 0.6
                 )
+                
                 self.overlay_svg_renderer.render(painter, teabag_rect)
