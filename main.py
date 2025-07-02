@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
         # Eingabe Füllmenge
         self.amount_input = QLineEdit()
         self.amount_input.setPlaceholderText("Füllmenge in ml")
-        Layout.addWidget(QLabel("Füllmenge:"))
+        Layout.addWidget(QLabel("Füllmenge: [ml, 0 : 250]"))
         Layout.addWidget(self.amount_input)
 
         # Eingabe Ziehzeit bzw. Intesivität
@@ -61,10 +61,11 @@ class MainWindow(QMainWindow):
     def print_input(self):
         drink = self.drink_selector.currentText()
         amount = self.amount_input.text()
+        fill_percent = self.cup.fill_percent
         intensity = self.intensity_input.value()
         milk = self.milk_selector.isChecked()
         milk_amount = self.milk_amount.value()
-        print(f"Auswahl: {drink}, Füllmenge: {amount} ml, Intensität: {intensity}, Milch: {milk}, Milchmenge: {milk_amount}")
+        print(f"Auswahl: {drink}, Füllmenge: {amount} ml, relative Füllmenge: {fill_percent}, Intensität: {intensity}, Milch: {milk}, Milchmenge: {milk_amount}")
         
         # Simpler Test: z. B. 250ml = 100% Füllstand
         try:
@@ -73,10 +74,10 @@ class MainWindow(QMainWindow):
         except ValueError:
             fill = 0.0
 
-        self.cup.set_drink(drink)
-        self.cup.set_fill_percent(fill)
-        self.cup.set_intensity(intensity)
-        self.cup.set_milk(milk, milk_amount)
+        self.cup.drink_type=drink
+        self.cup.fill_percent = fill
+        self.cup.intensity = intensity
+        self.cup.milk = (milk, milk_amount)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

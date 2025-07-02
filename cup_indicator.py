@@ -8,11 +8,12 @@ from PySide6.QtSvg import QSvgRenderer
 class CupIndicator(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.fill_percent = 1
-        self.color = QColor("#412e20")
-        self.drink_type = "none"
-        self.milk = False
-        self.gradient = QLinearGradient()
+        self._fill_percent = 1
+        self._color = QColor("#412e20")
+        self._drink_type = "none"
+        self._milk = False
+        self._gradient = QLinearGradient()
+        self._intensity = 1,
 
         # SizePolicy mit height-for-width
         policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -44,21 +45,32 @@ class CupIndicator(QWidget):
         size = max(4 * font_size, 100)
         return QSize(size, size)
 
-    def set_fill_percent(self, percent: float):
+    @property
+    def fill_percent(self):
+        return self._fill_percent
+
+    @fill_percent.setter
+    def fill_percent(self, percent: float):
         """Setzt den Füllstand im Bereich 0.0–1.0."""
-        if self.drink_type == "unknown":
-            self.fill_percent = 1.0
+        if self._drink_type == "unknown":
+            self._fill_percent = 1.0
         else:
-            self.fill_percent = max(0.0, min(1.0, percent))
+            self._fill_percent = max(0.0, min(1.0, percent))
         self.update()
 
-    def set_drink(self, drink_type: str):
+    @property
+    def drink_type(self):
+        return self._drink_type
+
+    @drink_type.setter
+    def drink_type(self, drink_type: str):
         """Setzt die Farbe basierend auf dem Getränketyp."""
-        self.drink_type = drink_type.lower()
-        if self.drink_type == "kaffee": # Hier braucht man die Farben nicht einstellen, dass kann man sich wegen set_intensity sparen
-            self.color = QColor("#412e20")
-        elif self.drink_type == "tee":
-            self.color = QColor("#c68e17")
+        self._drink_type = drink_type.lower()
+        if self._drink_type == "kaffee":
+            self._color = QColor("#412e20")
+            self.overlay_svg_renderer = None 
+        elif self._drink_type == "tee":
+            self._color = QColor("#c68e17")
             teabag_svg_path = Path(__file__).parent / "resources" / "icon.teabag.svg"
 
             if teabag_svg_path.exists():
@@ -66,43 +78,54 @@ class CupIndicator(QWidget):
             else:
                 print(f"Teebeutel-SVG nicht gefunden: {teabag_svg_path}")
         else:
-            self.drink_type = "unknown"
+            self._drink_type = "unknown"
             self.overlay_svg_renderer = None  # Teebeutel sofort deaktivieren
-            self.color = QColor("#ff007f")
+            self._color = QColor("#ff007f")
         self.update()
 
-    def set_milk(self, milk: bool, amount: int):
-        self.milk = milk
-        if self.milk == True:
+    @property
+    def milk(self):
+        return self._milk
+
+    @milk.setter
+    def milk(self, value: tuple[bool, float]):
+        milk, amount = value
+        self._milk = milk
+        if self._milk == True:
             gradient = QLinearGradient(0, 0, 0, 1)  # Vertikaler Gradient
             gradient.setCoordinateMode(QLinearGradient.ObjectBoundingMode)
-            color = self.color
+            color = self._color
             gradient.setColorAt(0.0, QColor("#f9f4ef"))
             gradient.setColorAt(0.2 * (amount/100), QColor("#f9f4ef"))
             gradient.setColorAt(0.6 * (amount/100), color)
-            self.gradient = gradient
+            self._gradient = gradient
         self.update()
 
-    def set_intensity(self, intensity: float):
+    @property
+    def intensity(self):
+        return self._intensity
+
+    @intensity.setter
+    def intensity(self, intensity: float):
         """Setzt die Intensität des Getränkes um und interpoliert den Farbverlauf"""
-        if (self.drink_type == "unknown"):
+        if (self._drink_type == "unknown"):
             return
         
-        intensity = max(0, min((intensity/10), 1))
+        self._intensity = max(0, min((intensity/10), 1))
 
-        if (self.drink_type == "kaffee"):
+        if (self._drink_type == "kaffee"):
             start_rgb = (147, 104, 73)   # #936849 Hellbraun
             end_rgb   = ( 65,  46, 32)   # #412e20 Dunkelbraun
-        if (self.drink_type == "tee"):
+        if (self._drink_type == "tee"):
             start_rgb = (232, 177, 61)   # #e8b13d helles Ocker
             end_rgb   = (139,  99, 16)   # #8b6310 dunkles Ocker
 
         # Interpolation
-        r = int(start_rgb[0] + (end_rgb[0] - start_rgb[0]) * intensity)
-        g = int(start_rgb[1] + (end_rgb[1] - start_rgb[1]) * intensity)
-        b = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * intensity)
+        r = int(start_rgb[0] + (end_rgb[0] - start_rgb[0]) * self._intensity)
+        g = int(start_rgb[1] + (end_rgb[1] - start_rgb[1]) * self._intensity)
+        b = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * self._intensity)
 
-        self.color = QColor(r, g, b)
+        self._color = QColor(r, g, b)
         self.update()
 
     def paintEvent(self, event):
@@ -135,7 +158,7 @@ class CupIndicator(QWidget):
             # Fülltrapez berechnen
             cup_height = svg_rect.height() * 0.8
             cup_bottom_y = svg_rect.bottom() - svg_rect.height() * 0.05
-            fill_top_y = cup_bottom_y - self.fill_percent * cup_height
+            fill_top_y = cup_bottom_y - self._fill_percent * cup_height
             relative_fill_height = cup_bottom_y - fill_top_y
 
             slope = 20 / 165  # aus SVG
@@ -155,17 +178,17 @@ class CupIndicator(QWidget):
             pen = QPen(QColor("black"))
             pen.setWidth(2)   # z.B. 2 Pixel dick
             painter.setPen(pen)
-            if self.milk == True and self.drink_type != "unknown":
-                painter.setBrush(QBrush(self.gradient))
+            if self._milk == True and self._drink_type != "unknown":
+                painter.setBrush(QBrush(self._gradient))
             else:
-                painter.setBrush(QBrush(self.color))
+                painter.setBrush(QBrush(self._color))
             painter.drawPolygon(fill_polygon)
 
             # Cup SVG darüber rendern
             self.base_svg_renderer.render(painter, svg_rect)
 
             # Wenn Getränk nicht erkannt wurde: "X" anzeigen und Teebeutel deaktivieren
-            if self.drink_type == "unknown":
+            if self._drink_type == "unknown":
                 self.overlay_svg_renderer = None  # Teebeutel deaktivieren
 
                 font = painter.font()
