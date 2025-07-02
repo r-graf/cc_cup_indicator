@@ -8,39 +8,29 @@ Im Rahmen dieser Modularbeit wurde ein benutzerdefiniertes Custom Control (CC) i
 Die Logik zur Getränkeauswahl und -konfiguration ist in einer separaten Demoanwendung implementiert, die das Custom Control anschaulich nutzt und seine Wiederverwendbarkeit demonstriert.
 
 ## Technische Schwerpunkte:
-Objektorientierte Implementierung: Entwicklung eines modularen, wartbaren Custom Controls als PySide6 QWidget
+**Objektorientierte Implementierung:** Entwicklung eines modularen, wartbaren Custom Controls als PySide6 QWidget
 
-Dynamische Visualisierung: Zustandsabhängige Darstellung der Tasse inklusive Flüssigkeitsfüllstand, Milchanteil mit Farbverlauf, Getränkefarbe und Intensitätsinterpolation
+**Dynamische Visualisierung:** Zustandsabhängige Darstellung der Tasse inklusive Flüssigkeitsfüllstand, Milchanteil mit Farbverlauf, Getränkefarbe und Intensitätsinterpolation
 
-Responsive Layouts: Unterstützung von Layout-Managern für flexible Größen- und Positionsanpassung
+**Responsive Layouts:** Unterstützung von Layout-Managern für flexible Größen- und Positionsanpassung
 
-Ereignisgesteuerte Architektur: Signale für Zustandsänderungen ermöglichen die Integration in komplexe Anwendungen
+**Ereignisgesteuerte Architektur:** Signale für Zustandsänderungen ermöglichen die Integration in komplexe Anwendungen
 
-Ressourcenmanagement: Nutzung von SVG-Grafiken für ansprechende und skalierbare Darstellungen
+**Ressourcenmanagement:** Nutzung von SVG-Grafiken für ansprechende und skalierbare Darstellungen
 
 ## Features
 
-Getränketyp-spezifische Darstellung: Farbe und Overlays (z.B. Teebeutel-SVG bei Tee)
+**Getränketyp-spezifische Darstellung:** Farbe und Overlays (z.B. Teebeutel-SVG bei Tee)
 
-Interpolation der Farbintensität: Sanfter Farbverlauf zwischen hell und dunkel für realistische Darstellungen
+**Interpolation der Farbintensität:** Sanfter Farbverlauf zwischen hell und dunkel für realistische Darstellungen
 
-Milchdarstellung: Vertikaler Farbverlauf mit anpassbarer Milchmenge
+**Milchdarstellung:** Vertikaler Farbverlauf mit anpassbarer Milchmenge
 
-Füllstand: Prozentsatzgesteuerte Darstellung der Flüssigkeit im Tassenumriss
+**Füllstand:** Prozentsatzgesteuerte Darstellung der Flüssigkeit im Tassenumriss
 
-Fehler-Handling: Visuelles Feedback bei unbekannten Getränketypen (z.B. rotes „X“)
+**Fehler-Handling:** Visuelles Feedback bei unbekannten Getränketypen (z.B. rotes „X“)
 
-Ereignisse (Signale): Für Änderungen von Füllstand, Getränketyp und Milchstatus zur einfachen Anbindung an andere UI-Komponenten
-
-## Weiterentwicklungsmöglichkeiten
-
-Unterstützung von Dark- und Light-Themes
-
-Verbesserung der SVG-Overlay-Positionierung und -Skalierung
-
-Erweiterung um Milchschaum-Visualisierung
-
-Feinjustierung der Strichdicken und Farbnuancen der SVGs
+**Ereignisse (Signale):** Für Änderungen von Füllstand, Getränketyp und Milchstatus zur einfachen Anbindung an andere UI-Komponenten
 
 ## Nutzung/Beispiel
 
