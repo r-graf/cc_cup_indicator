@@ -1,5 +1,7 @@
 # Entwicklung eines objektorientierten Customized Controls zur Visualisierung individueller Getränkekonfigurationen in PySide6
 
+https://github.com/r-graf/cc_cup_indicator
+
 ## Kurzbeschreibung/Zielsetzung:
 Im Rahmen dieser Modularbeit wurde ein benutzerdefiniertes Custom Control (CC) in PySide6 entwickelt, das eine grafische Tasse visualisiert. Dieses CC ermöglicht die dynamische Darstellung von konfigurierbaren Getränkeparametern wie Getränketyp (z.B. Kaffee oder Tee), Füllstand, Milchanteil und Intensität (z.B. Ziehzeit bei Tee oder Stärke bei Kaffee).
 
